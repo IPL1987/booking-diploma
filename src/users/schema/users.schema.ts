@@ -15,7 +15,7 @@ export class User {
   public name: string;
 
   @Prop()
-  public contactPhone: string;
+  public contactPhone?: string;
 
   @Prop({ required: true, default: 'client' })
   public role: 'client' | 'admin' | 'manager';
