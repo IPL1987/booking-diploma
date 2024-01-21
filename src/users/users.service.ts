@@ -41,9 +41,9 @@ export class UserService implements IUserService {
     }
   }
 
-  async create(createUserDto: Partial<User>): Promise<User> {
+  async create(data: Partial<User>): Promise<User> {
     try {
-      const createdUser = new this.userModel(createUserDto);
+      const createdUser = new this.userModel(data);
       if (createdUser) {
         return createdUser.save();
       }
