@@ -10,6 +10,8 @@ import { ReservationService } from './reservation/reservation.service';
 import { ReservationController } from './reservation/reservation.controller';
 import { ReservationModule } from './reservation/reservation.module';
 import { ChatModule } from './chat/chat.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
@@ -19,6 +21,10 @@ import { ChatModule } from './chat/chat.module';
     HotelModule,
     ChatModule,
     ReservationModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
   ],
   controllers: [AppController, HotelsController, ReservationController],
   providers: [AppService, ReservationService],
