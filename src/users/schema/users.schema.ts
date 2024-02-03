@@ -19,6 +19,7 @@ export class User {
 
   @Prop({ required: true, default: 'client' })
   public role: 'client' | 'admin' | 'manager';
+  password: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
