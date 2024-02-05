@@ -1,62 +1,47 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { Hotel } from '../hotels/schema/hotel.schema';
 import { HotelService } from './hotels.service';
-import { HotelRoom } from '../hotels/schema/room.schema';
-import { IHotelRoomService } from './room.service';
-import { SearchRoomsParams } from './dto/search-room.dto';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
+import { ID } from './interface/hotel.interface';
+import { HttpValidationPipe } from 'src/validation/validation';
+import { UpdateHotelParams } from './dto/hotel.dto';
+import { SearchHotelParams } from './dto/search-hotel.dto';
+import { Role, Roles } from 'src/auth/enums/enums';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('/api')
+@Roles(Role.ADMIN)
 export class HotelsController {
-  constructor(
-    private hotelRoomService: IHotelRoomService,
-    private hotelService: HotelService,
-  ) {}
-
-  @Get('/common/hotel-rooms')
-  async getHotelRooms(@Query() query: SearchRoomsParams) {
-    const queryParams = { ...query };
-    return await this.hotelRoomService.search(queryParams);
-  }
-
-  @Get('/common/hotel-rooms/:id')
-  async getHotelRoom(@Param() params): Promise<HotelRoom> {
-    const hotelRoom = await this.hotelRoomService.findById(params.id);
-    return hotelRoom;
-  }
+  constructor(private hotelService: HotelService) {}
 
   @Post('/admin/hotels/')
-  async createHotel(@Body() body): Promise<Hotel> {
-    const hotel = await this.hotelService.create(body);
+  async createHotel(
+    @Body(new HttpValidationPipe()) data: Partial<Hotel>,
+  ): Promise<Hotel> {
+    const hotel = await this.hotelService.create(data);
     return hotel;
   }
 
   @Get('/admin/hotels/')
-  async getHotels(@Param() params): Promise<Hotel[]> {
+  async getHotels(@Param() params: SearchHotelParams): Promise<Hotel[]> {
     const hotels = await this.hotelService.search(params);
     return hotels;
   }
 
-  @Get('/admin/hotels/:id')
-  async getHotel(@Param() params): Promise<Hotel> {
-    const hotel = await this.hotelService.findById(params.id);
-    return hotel;
-  }
-
   @Put('/admin/hotels/:id')
-  async updateHotel(@Param() params, @Body() body): Promise<Hotel> {
-    const hotel = await this.hotelService.update(params.id, body);
-    return hotel;
-  }
-
-  @Post('/admin/hotel-rooms/')
-  async createHotelRoom(@Body() body): Promise<HotelRoom> {
-    const hotelRoom = await this.hotelRoomService.create(body);
-    return hotelRoom;
-  }
-
-  @Put('/admin/hotel-rooms/:id')
-  async updateHotelRoom(@Param() params, @Body() body): Promise<HotelRoom> {
-    const hotelRoom = await this.hotelRoomService.update(params.id, body);
-    return hotelRoom;
+  async updateHotel(
+    @Param('id') id: ID,
+    @Body(new HttpValidationPipe()) data: UpdateHotelParams,
+  ): Promise<Hotel> {
+    return await this.hotelService.update(id, data);
   }
 }

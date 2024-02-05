@@ -48,7 +48,7 @@ export class UserService implements IUserService {
         return createdUser.save();
       }
     } catch (error: any) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException('Ошибка создания пользователя');
     }
   }
 

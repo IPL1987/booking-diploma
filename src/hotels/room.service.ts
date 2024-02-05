@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { HotelRoom, HotelRoomDocument } from '../hotels/schema/room.schema';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { HotelRoomService, ID } from '../hotels/interface/room.interface';
 import { SearchRoomsParams } from '../hotels/dto/search-room.dto';
 
@@ -13,7 +13,12 @@ export class IHotelRoomService implements HotelRoomService {
   ) {}
 
   async create(data: Partial<HotelRoom>): Promise<HotelRoom> {
-    return await this.roomModel.create(data);
+    const room = new this.roomModel(data);
+    try {
+      return await room.save();
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
   async findById(id: ID, isEnabled?: true): Promise<HotelRoom> {
@@ -21,20 +26,27 @@ export class IHotelRoomService implements HotelRoomService {
     if ((isEnabled = true)) {
       searchParams.isEnabled = isEnabled;
     }
-    return await this.roomModel.findById(searchParams);
+    return await this.roomModel
+      .findById(searchParams)
+      .populate('Hotel')
+      .select('-__v')
+      .exec();
   }
 
   async search(params: SearchRoomsParams): Promise<HotelRoom[]> {
-    const { limit, offset, ...filter } = params;
+    const { limit, offset, ...rest } = params;
     return await this.roomModel
-      .find(filter)
+      .find(rest)
       .populate('Hotel')
       .limit(limit)
       .skip(offset);
   }
 
-  async update(id: ObjectId, data: Partial<HotelRoom>): Promise<HotelRoom> {
-    const hotelRoom = await this.roomModel.findByIdAndUpdate(id, data);
+  async update(id: ID, data: Partial<HotelRoom>): Promise<HotelRoom> {
+    const hotelRoom = await this.roomModel.findByIdAndUpdate(
+      { id },
+      { $set: { ...data, updatedAt: Date.now() } },
+    );
     return hotelRoom;
   }
 }

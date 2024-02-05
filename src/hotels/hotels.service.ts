@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Hotel, IHotel } from '../hotels/schema/hotel.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -13,25 +13,28 @@ export class HotelService implements IHotelService {
     private HotelModel: Model<IHotel>,
   ) {}
 
-  public async create(data: any) {
+  public async create(data: Partial<Hotel>): Promise<IHotel> {
     const hotel = new this.HotelModel(data);
-    await hotel.save();
-    return hotel;
+    try {
+      return await hotel.save();
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
   }
 
-  public async findById(id: ID) {
-    const hotel = await this.HotelModel.findById(id);
-    return hotel;
+  public async findById(id: ID): Promise<IHotel> {
+    return await this.HotelModel.findById(id).exec();
   }
 
-  public async search(params: SearchHotelParams) {
-    const { limit, offset } = params;
-    const hotels = await this.HotelModel.find().skip(offset).limit(limit);
-    return hotels;
+  public async search(params: SearchHotelParams): Promise<IHotel[]> {
+    const { limit, offset, title } = params;
+    const query = {
+      title: { $regex: new RegExp(title, 'i') },
+    };
+    return await this.HotelModel.find(query).skip(offset).limit(limit);
   }
 
-  public async update(id: ID, data: Partial<Hotel>) {
-    const hotel = this.HotelModel.findByIdAndUpdate(id, data);
-    return hotel;
+  public async update(id: ID, data: Partial<Hotel>): Promise<IHotel> {
+    return await this.HotelModel.findByIdAndUpdate(id, data);
   }
 }
