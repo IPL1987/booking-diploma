@@ -6,7 +6,7 @@ export interface DBConfig {
   host: string;
   port: number;
   user: string;
-  pass: string;
+  password: string;
   dbName: string;
 }
 
