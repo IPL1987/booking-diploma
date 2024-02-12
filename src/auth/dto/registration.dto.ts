@@ -4,7 +4,15 @@ import { LoginDto } from './login.dto';
 export class RegistrationDto extends LoginDto {
   @IsString()
   @IsDefined()
-  name: string;
+  email: string;
+
+  @IsString()
+  @IsDefined()
+  password: string;
+
+  @IsString()
+  @IsDefined()
+  name?: string;
 
   @IsString()
   @IsDefined()
