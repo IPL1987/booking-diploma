@@ -9,7 +9,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Role } from './enums/enums';
-import { compare } from 'bcrypt';
+import { compareHash, getHash } from './password/password';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +21,9 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
-    if (user) {
+    if (user && user.passwordHash === password) {
       const { passwordHash, ...result } = user;
-      const isEquals = await compare(passwordHash, password);
+      const isEquals = await compareHash(passwordHash, password);
 
       if (isEquals) return result;
     }
@@ -30,27 +31,43 @@ export class AuthService {
   }
 
   async registration(data: RegistrationDto): Promise<any> {
-    const { email, password } = data;
-    const user = await this.validateUser(email, password);
-
+    const { password, email, ...rest } = data;
+    const user = await this.userService.findByEmail(email);
     if (user) {
-      throw new BadRequestException('Email уже занят');
+      throw new BadRequestException(
+        'Пользователь с таким email уже существует',
+      );
     }
 
-    await this.userService.create(data);
-    return await this.login({ email, password });
+    const passwordHash = bcrypt.hashSync(password, 8).toString();
+    const newUser = await this.userService.create({
+      passwordHash,
+      email,
+      ...rest,
+    });
+    return {
+      id: newUser.id,
+      email: newUser.email,
+      name: newUser.name,
+    };
   }
 
-  async login({ email, password }: LoginDto): Promise<LoginResponseDto> {
-    const user = await this.validateUser(email, password);
-    const validPass = await user.validateHash(password);
+  async createToken(payload: any) {
+    return await this.jwtService.signAsync(payload);
+  }
 
-    if (!validPass || !user) {
-      throw new UnauthorizedException('Пользователь не найден');
+  async login(data: LoginDto): Promise<LoginResponseDto> {
+    const user = await this.userService.findByEmail(data.email);
+    const isValidPassword = compareHash(
+      data.password,
+      await getHash(data.password),
+    );
+    if (!isValidPassword) {
+      throw new UnauthorizedException('Неверный пароль');
     }
 
     const payload = {
-      id: user._id,
+      id: user.id,
       email: user.email,
       role: Role.ADMIN || Role.CLIENT || Role.MANAGER,
     };

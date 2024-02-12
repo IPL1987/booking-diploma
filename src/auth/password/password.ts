@@ -1,17 +1,19 @@
 import * as bcrypt from 'bcrypt';
 
-const saltRounds = 10;
+const saltRounds = 8;
 
-export const passwordHash: (password: string) => Promise<string> = async (
-  password: string,
+export const getHash: (pass: string) => Promise<string> = async (
+  pass: string,
 ) => {
   const salt = await bcrypt.genSalt(saltRounds);
-  return await bcrypt.hash(password, salt);
+  const hashedPassword = await bcrypt.hash(pass, salt);
+  return hashedPassword;
 };
 
 export const compareHash: (
   password: string,
-  hash: string,
-) => Promise<boolean> = async (password: string, hash: string) => {
-  return await bcrypt.compare(password, hash);
+  hashedPassword: string,
+) => Promise<boolean> = async (password: string, hashedPassword: string) => {
+  const result = await bcrypt.compare(password, hashedPassword);
+  return result;
 };

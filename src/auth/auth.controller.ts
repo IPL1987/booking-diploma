@@ -48,7 +48,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Roles(Role.CLIENT)
   @Post('/auth/client/register')
-  async register(@Body(new HttpValidationPipe()) data: RegistrationDto) {
-    return await this.authService.registration(data);
+  async register(
+    @Body() data: RegistrationDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    data['passwordHash'] = data.password;
+    const authUser = await this.authService.registration(data);
+    const cookiesConfig = this.configService.get<CookiesConfig>('cookies');
+    res.cookie('token', authUser.accessToken, {
+      expires: new Date(Date.now() + cookiesConfig.expires),
+    });
+    return authUser;
   }
 }
