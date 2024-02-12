@@ -23,6 +23,9 @@ export class User {
     role: 'client' || 'admin' || 'manager',
   })
   public role: string;
+
+  @Prop({ required: true })
+  public id: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

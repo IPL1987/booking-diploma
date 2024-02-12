@@ -13,25 +13,22 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post('/admin/users/')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   async createUser(
     @Body(new HttpValidationPipe()) body: CreateUserDto,
   ): Promise<Partial<User>> {
-    const user = await this.userService.create(body);
-    return user;
+    return await this.userService.create(body);
   }
 
   @Get('/admin/users/')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.MANAGER)
   async getAdmin(@Param() params: any): Promise<Array<Partial<User>>> {
-    const users = this.userService.findAll(params);
-    return users;
+    return await this.userService.findAll(params);
   }
 
   @Get('/manager/users/')
   @Roles(Role.MANAGER)
   async getManager(@Param() params: any): Promise<Array<Partial<User>>> {
-    const users = this.userService.findAll(params);
-    return users;
+    return await this.userService.findAll(params);
   }
 }

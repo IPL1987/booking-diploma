@@ -37,7 +37,7 @@ export class UserService implements IUserService {
         .limit(limit)
         .exec();
     } catch (error: any) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException(error);
     }
   }
 
