@@ -37,7 +37,7 @@ export class IHotelRoomService implements HotelRoomService {
     const { limit, offset, ...rest } = params;
     return await this.roomModel
       .find(rest)
-      .populate('Hotel')
+      .populate('Hotel', ['id', 'title', 'description'])
       .limit(limit)
       .skip(offset);
   }
@@ -46,6 +46,7 @@ export class IHotelRoomService implements HotelRoomService {
     const hotelRoom = await this.roomModel.findByIdAndUpdate(
       { id },
       { $set: { ...data, updatedAt: Date.now() } },
+      { new: true },
     );
     return hotelRoom;
   }

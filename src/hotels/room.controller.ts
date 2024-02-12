@@ -23,7 +23,7 @@ import { MulterFilesInterceptor } from 'interceptor/images.interceptor';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('/api')
-export class HotelsController {
+export class RoomsController {
   constructor(private hotelRoomService: IHotelRoomService) {}
 
   @Roles(Role.ADMIN, Role.MANAGER, Role.CLIENT)

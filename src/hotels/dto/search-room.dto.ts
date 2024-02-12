@@ -1,11 +1,5 @@
-import {
-  IsBoolean,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { ObjectId } from 'mongoose';
+import { IsBoolean, IsMongoId, IsNumber, IsOptional } from 'class-validator';
+import { ID } from '../interface/hotel.interface';
 
 export class SearchRoomsParams {
   @IsNumber()
@@ -16,17 +10,11 @@ export class SearchRoomsParams {
   @IsOptional()
   offset: number;
 
-  @IsString()
-  @IsOptional()
-  title: string;
-
   @IsMongoId()
   @IsOptional()
-  hotel: ObjectId;
+  hotel: ID;
 
   @IsBoolean()
   @IsOptional()
   isEnabled?: boolean;
 }
-
-export { ObjectId };

@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { Hotel } from '../hotels/schema/hotel.schema';
@@ -24,17 +25,23 @@ export class HotelsController {
   constructor(private hotelService: HotelService) {}
 
   @Post('/admin/hotels/')
-  async createHotel(
-    @Body(new HttpValidationPipe()) data: Partial<Hotel>,
-  ): Promise<Hotel> {
+  async createHotel(@Body(new HttpValidationPipe()) data: Partial<Hotel>) {
     const hotel = await this.hotelService.create(data);
-    return hotel;
+    return {
+      id: hotel.id,
+      title: hotel.title,
+      description: hotel.description,
+    };
   }
 
   @Get('/admin/hotels/')
-  async getHotels(@Param() params: SearchHotelParams): Promise<Hotel[]> {
-    const hotels = await this.hotelService.search(params);
-    return hotels;
+  find(@Query() data: SearchHotelParams) {
+    const { limit, offset, title } = data;
+    return this.hotelService.search({
+      limit: limit ? Number(limit) : 10,
+      offset: offset ? Number(offset) : 0,
+      title: title,
+    });
   }
 
   @Put('/admin/hotels/:id')

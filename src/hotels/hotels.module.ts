@@ -5,6 +5,7 @@ import { IHotelRoomService } from '../hotels/room.service';
 import { HotelsController } from '../hotels/hotels.controller';
 import { Hotel, HotelSchema } from '../hotels/schema/hotel.schema';
 import { HotelRoom, HotelRoomSchema } from '../hotels/schema/room.schema';
+import { RoomsController } from './room.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { HotelRoom, HotelRoomSchema } from '../hotels/schema/room.schema';
       { name: HotelRoom.name, schema: HotelRoomSchema },
     ]),
   ],
-  controllers: [HotelsController],
+  controllers: [HotelsController, RoomsController],
   providers: [HotelService, IHotelRoomService],
   exports: [HotelService, IHotelRoomService],
 })
