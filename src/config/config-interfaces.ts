@@ -1,11 +1,7 @@
-export interface NestConfig {
-  port: number;
-}
-
 export interface DBConfig {
+  user: string;
   host: string;
   port: number;
-  user: string;
   password: string;
   dbName: string;
 }

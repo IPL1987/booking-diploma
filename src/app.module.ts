@@ -4,10 +4,12 @@ import { AppService } from './app.service';
 import { UserModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { HotelModule } from './hotels/hotels.module';
-import { ChatModule } from './chat/chat.module';
+import { SupportModule } from './chat/support.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { ReservationModule } from './reservation/reservation.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { MongooseConfigService } from './config/mongoose-config';
 
 @Module({
   imports: [
@@ -16,10 +18,21 @@ import { ReservationModule } from './reservation/reservation.module';
       load: [configuration],
     }),
     UserModule,
-    MongooseModule.forRoot('mongodb://localhost:27017/'),
+    MongooseModule.forRootAsync({
+      useClass: MongooseConfigService,
+    }),
     ReservationModule,
     HotelModule,
-    ChatModule,
+    SupportModule,
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+      newListener: false,
+      removeListener: false,
+      maxListeners: 10,
+      verboseMemoryLeak: false,
+      ignoreErrors: false,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
