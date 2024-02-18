@@ -22,7 +22,7 @@ export class User {
     default: 'client',
     role: 'client' || 'admin' || 'manager',
   })
-  public role: string;
+  static role: string;
 
   @Prop({ required: true })
   public id: string;

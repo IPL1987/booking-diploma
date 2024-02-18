@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  UnauthorizedException,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -45,16 +45,20 @@ export class RoomsController {
   async createHotelRoom(
     @Body(new HttpValidationPipe()) body: Partial<HotelRoom>,
     @UploadedFiles() images: Array<Express.Multer.File>,
+    @Query('limit') limit: number,
+    @Query('offset') offset: number,
   ): Promise<HotelRoom> {
     const hotelRoom = {
       ...body,
+      limit: limit ? limit : 10,
+      offset: offset ? offset : 0,
       images: images.map((image) => image.path),
     };
     try {
       if (images.length > 0)
         return await this.hotelRoomService.create(hotelRoom);
     } catch {
-      throw new BadRequestException();
+      throw new UnauthorizedException();
     }
   }
 
@@ -73,7 +77,7 @@ export class RoomsController {
     try {
       return this.hotelRoomService.update(id, updateRoom);
     } catch {
-      throw new BadRequestException();
+      throw new UnauthorizedException();
     }
   }
 }
