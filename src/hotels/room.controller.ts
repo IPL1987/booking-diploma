@@ -19,7 +19,7 @@ import { SearchRoomsParams } from './dto/search-room.dto';
 import { Role, Roles } from 'src/auth/enums/enums';
 import { HotelRoom } from './schema/room.schema';
 import { HttpValidationPipe } from 'src/validation/validation';
-import { MulterFilesInterceptor } from 'interceptor/images.interceptor';
+import { MulterFilesInterceptor } from 'src/interceptor/images.interceptor';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('/api')
